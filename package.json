@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "api_project_two",
   "main": "server.js",
-  "type": "module",
   "scripts": {
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
     "start": "nodemon server.js"
@@ -12,11 +11,21 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
+    "knex": "^0.21.21",
     "nodemon": "^2.0.12",
+    "pg": "^8.7.1",
     "pg-promise": "^10.11.0"
   },
   "devDependencies": {
     "jest": "^27.0.6",
     "supertest": "^6.1.5"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nraynes/api-employee-tracker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nraynes/api-employee-tracker/issues"
+  },
+  "homepage": "https://github.com/nraynes/api-employee-tracker#readme"
 }
