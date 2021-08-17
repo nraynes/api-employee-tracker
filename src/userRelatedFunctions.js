@@ -1,6 +1,6 @@
 const knex = require('knex')(require('../knexfile.js')[process.env.NODE_ENV || 'development']);
 
-function getUsersByBusinessName(req, res, businessName) {
+function getUsersByBusinessName(res, businessName) {
     return (
         knex
             .select('*').from('users')
@@ -19,7 +19,7 @@ function getUsersByBusinessName(req, res, businessName) {
     );
 }
 
-function getUserById(req, res, id) {
+function getUserById(res, id) {
     return (
         knex.raw(`SELECT * FROM users WHERE id = ${id}`)
             .then((data) => {
@@ -33,7 +33,7 @@ function getUserById(req, res, id) {
     );
 }
 
-function getUsersByFirstName(req, res, firstName) {
+function getUsersByFirstName(res, firstName) {
     return (
         knex.raw(`SELECT * FROM users WHERE first_name = '${firstName}'`)
             .then((data) => {
@@ -47,7 +47,7 @@ function getUsersByFirstName(req, res, firstName) {
     );
 }
 
-function getUsersByFullName(req, res, firstName, lastName) {
+function getUsersByFullName(res, firstName, lastName) {
     return (
         knex.raw(`SELECT * FROM users WHERE first_name = '${firstName}' AND last_name = '${lastName}'`)
             .then((data) => {
@@ -61,7 +61,7 @@ function getUsersByFullName(req, res, firstName, lastName) {
     );
 }
 
-function getUsersByLastName(req, res, lastName) {
+function getUsersByLastName(res, lastName) {
     return (
         knex.raw(`SELECT * FROM users WHERE last_name = '${lastName}'`)
             .then((data) => {
@@ -76,7 +76,7 @@ function getUsersByLastName(req, res, lastName) {
     );
 }
 
-function getUsersByClockInStatus(req, res, status) {
+function getUsersByClockInStatus(res, status) {
     return (
         knex.raw(`SELECT * FROM users WHERE is_clocked_in = ${status}`)
             .then((data) => {
@@ -89,7 +89,7 @@ function getUsersByClockInStatus(req, res, status) {
     );
 }
 
-function getUsersByPayRate(req, res, payRate) {
+function getUsersByPayRate(res, payRate) {
     return (
         knex.raw(`SELECT * FROM users WHERE pay_rate = '${payRate}'`)
             .then((data) => {
@@ -102,7 +102,7 @@ function getUsersByPayRate(req, res, payRate) {
     )
 }
 
-function getUsersByManagerStatus(req, res, status) {
+function getUsersByManagerStatus(res, status) {
     return (
         knex.raw(`SELECT * FROM users WHERE is_manager = ${status}`)
             .then((data) => {
@@ -115,7 +115,7 @@ function getUsersByManagerStatus(req, res, status) {
     );
 }
 
-function getUsersByBusinessID(req, res, id) {
+function getUsersByBusinessID(res, id) {
     return (
         knex.raw(`SELECT * FROM users WHERE business_id = ${id}`)
             .then((data) => {
@@ -128,7 +128,7 @@ function getUsersByBusinessID(req, res, id) {
     );
 }
 
-function updateUserIDByID(req, res, queryID, newID) {
+function updateUserIDByID(res, queryID, newID) {
     return (
         knex.raw(`UPDATE users SET id = ${newID} WHERE id = ${queryID}`)
             .then(() => {
@@ -137,16 +137,46 @@ function updateUserIDByID(req, res, queryID, newID) {
     );
 }
 
-function addUser(req, res, firstName, lastName, password, payRate, isManager, businessID, isClockedIn = false) {
-    return (
-        knex.raw(`INSERT INTO users (first_name, last_name, auth_hash, is_clocked_in, pay_rate, is_manager, business_id)
-                VALUES ('${firstName}', '${lastName}', '${password}', ${isClockedIn}, '${payRate}', ${isManager}, ${businessID})`)
-            .then(() => {
-                res.status(200).send(`User Added`);
-            })
-    );
+function addUser(res, firstName, lastName, password, payRate, isManager, businessID, isClockedIn = false) {
+    if (!res || !res || !firstName || typeof firstName !== 'string' ||
+        !lastName || typeof lastName !== 'string' ||
+        !password || typeof password !== 'string' ||
+        !payRate || typeof payRate !== 'string' ||
+        isManager === undefined || typeof isManager !== 'boolean' ||
+        !businessID || typeof businessID !== 'number' ||
+        isClockedIn === undefined || typeof isClockedIn !== 'boolean' ) {
+        res.status(400).send(`Incorrect data received to process request`);
+    } else {
+        return (
+            knex.raw(`INSERT INTO users (first_name, last_name, auth_hash, is_clocked_in, pay_rate, is_manager, business_id)
+                        VALUES ('${firstName}', '${lastName}', '${password}', ${isClockedIn}, '${payRate}', ${isManager}, ${businessID})`)
+                .then(() => {
+                    res.status(200).send(`User Added`);
+                })
+        );
+    }
+}
+
+function removeUserByEmployeeID(res, employeeID) {
+    if (!res || !employeeID || typeof employeeID !== 'number') {
+        res.status(400).send(`Incorrect data received to process request`);
+    } else {
+        return (
+            knex('users')
+                .where('id', '=', employeeID)
+                .del()
+                .then((rows) => {
+                    if (!rows) {
+                        res.status(404).send(`No employee with that ID exists to delete`);
+                    } else {
+                        res.status(200).send(`Employee with ID ${employeeID} has been removed from the system`);
+                    }
+                })
+        );
+    }
 }
 
 module.exports = {getUsersByBusinessName, getUserById, getUsersByFirstName, getUsersByFullName, getUsersByLastName,
-    getUsersByClockInStatus, getUsersByPayRate, getUsersByManagerStatus, getUsersByBusinessID, updateUserIDByID, addUser }
+    getUsersByClockInStatus, getUsersByPayRate, getUsersByManagerStatus, getUsersByBusinessID, updateUserIDByID, addUser,
+    removeUserByEmployeeID }
 
