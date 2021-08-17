@@ -1,9 +1,9 @@
-const port = 3000
+const port = 3001
 const express = require('express');
 const bodyParser = require('body-parser');
 const { response, json } = require('express');
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const knex = require('knex')(require('./knexfile.js')[process.env.NODE_ENV || 'development']);
 
 function postUser( id, firstName, lastName, password) {
