@@ -1,16 +1,17 @@
-const port = 3001
 const express = require('express');
-const bodyParser = require('body-parser');
-const { response, json } = require('express');
+const cors = require('cors');
+const knex = require('knex')(require('./knexfile.js')[process.env.NODE_ENV || 'development']);
+
 const app = express();
 const PORT = process.env.PORT || 3001;
-const knex = require('knex')(require('./knexfile.js')[process.env.NODE_ENV || 'development']);
 const URF = require('./src/userRelatedFunctions');
 const TTRF = require('./src/timeTableFunctions');
 var TimeStamp = require('./src/timeStamp.js');
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.raw({ inflate: true, limit: '100kb', type: 'text/xml' }));
+//app.use(bodyParser.urlencoded({ extended: true }));
+//app.use(bodyParser.raw({ inflate: true, limit: '100kb', type: 'text/xml' }));
+
 app.use(express.json());
+app.use(cors());
 
 app.get('/lastEmployee', (req, res) => {
     let input = req.params.id
@@ -33,7 +34,8 @@ app.get('/employee/id/:employeeId', function (req, res) {
     }
 });
 
-app.get('/login', function (req, res) {
+app.post('/login', function (req, res) {
+    console.log(req.body);
     let userID = parseInt(req.body.userId);
     let password = req.body.password;
 
@@ -47,12 +49,12 @@ app.get('/login', function (req, res) {
             .where('id', userID)
             .then((data) => {
                 if (data.length <= 0) {
-                    res.status(400).send(`No User with that ID exists`)
+                    res.status(404).send(`No User with that ID exists`)
                 } else {
                     if (password === data[0].auth_hash) {
-                        res.status(200).send('Login Successful');
+                        res.status(200).json('Login Successful');
                     } else {
-                        res.status(400).send(`Password is Incorrect`);
+                        res.status(403).send(`Password is Incorrect`);
                     }
                 }
             })
@@ -149,6 +151,6 @@ app.delete('/employees/:employeeId', function (req, res) {
     URF.removeUserByEmployeeID(res, id);
 });
 
-app.listen(port, () => {
-    console.log(`Listening on http://localhost:${port}/ ...`)
+app.listen(PORT, () => {
+    console.log(`Listening on http://localhost:${PORT}/ ...`)
 });
