@@ -54,7 +54,7 @@ app.post('/login', function (req, res) {
                     if (password === data[0].auth_hash) {
                         res.status(200).json('Login Successful');
                     } else {
-                        res.status(403).send(`Password is Incorrect`);
+                        res.status(404).send(`Password is Incorrect`);
                     }
                 }
             })
