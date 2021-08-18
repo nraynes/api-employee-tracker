@@ -9,10 +9,10 @@ exports.up = function(knex) {
       table.string('pay_rate');
       table.bool('is_manager').notNullable();
       table.integer('business_id');
-      table.timestamps(true, true); // adds created_at and updated_at
+      table.timestamps(true, true);
     });
   };
 
 exports.down = function(knex) {
-   // return knex.schema.dropTableIfExists('users');
+    return knex.schema.dropTableIfExists('users');
 };
